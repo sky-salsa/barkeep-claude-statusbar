@@ -7,7 +7,7 @@ A zero-token-overhead status bar for Claude Code that displays your current obje
 Open PowerShell and paste:
 
 ```powershell
-powershell -c "irm https://raw.githubusercontent.com/sky-salsa/barkeep/main/install.ps1 | iex"
+powershell -c "irm https://raw.githubusercontent.com/sky-salsa/barkeep-claude-statusbar/main/install.ps1 | iex"
 ```
 
 Restart Claude Code. That's it.
@@ -39,7 +39,7 @@ Both are session-scoped — they don't leak across sessions.
 
 ## Uninstall
 
-Delete `~/.claude/extensions/barkeep/` and remove the `statusLine` and `UserPromptSubmit` hook entries from `~/.claude/settings.json`.
+Delete `~/.claude/extensions/barkeep-claude-statusbar/` and remove the `statusLine` and `UserPromptSubmit` hook entries from `~/.claude/settings.json`.
 
 ## Files
 

@@ -1,10 +1,10 @@
 # Barkeep Installer — Claude Code Status Bar
-# Usage: powershell -c "irm https://raw.githubusercontent.com/sky-salsa/barkeep/main/install.ps1 | iex"
+# Usage: powershell -c "irm https://raw.githubusercontent.com/sky-salsa/barkeep-claude-statusbar/main/install.ps1 | iex"
 
 $ErrorActionPreference = "Stop"
 
-$repo = "https://raw.githubusercontent.com/sky-salsa/barkeep/main"
-$installDir = Join-Path $HOME ".claude" "extensions" "barkeep"
+$repo = "https://raw.githubusercontent.com/sky-salsa/barkeep-claude-statusbar/main"
+$installDir = Join-Path $HOME ".claude" "extensions" "barkeep-claude-statusbar"
 $settingsPath = Join-Path $HOME ".claude" "settings.json"
 
 $files = @("statusline.py", "objective-hook.py", "set-objective.py")

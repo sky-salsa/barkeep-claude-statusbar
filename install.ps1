@@ -13,6 +13,57 @@ Write-Host ""
 Write-Host "=== Barkeep — Claude Code Status Bar ===" -ForegroundColor Cyan
 Write-Host ""
 
+# Detect old installations by scanning settings.json for previous statusline paths
+$oldInstallDir = $null
+if (Test-Path $settingsPath) {
+    $existingSettings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+    if ($existingSettings.statusLine -and $existingSettings.statusLine.command) {
+        $match = [regex]::Match($existingSettings.statusLine.command, 'python\s+"?(.+)[/\\]statusline\.py"?')
+        if ($match.Success) {
+            $candidate = $match.Groups[1].Value.Trim('"')
+            if ($candidate -ne ($installDir -replace '\\','/') -and (Test-Path $candidate)) {
+                $oldInstallDir = $candidate
+            }
+        }
+    }
+}
+
+# Migrate objectives.json from old installation
+if ($oldInstallDir) {
+    Write-Host "Found previous installation at: $oldInstallDir" -ForegroundColor Yellow
+    $oldObjectives = Join-Path $oldInstallDir "objectives.json"
+    $newObjectives = Join-Path $installDir "objectives.json"
+    if (Test-Path $oldObjectives) {
+        if (-not (Test-Path $installDir)) {
+            New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+        }
+        if (Test-Path $newObjectives) {
+            # Merge: load both, combine session keys (new takes priority for conflicts)
+            Write-Host "Merging objective history from old installation..." -ForegroundColor Gray
+            $oldData = Get-Content $oldObjectives -Raw | ConvertFrom-Json -AsHashtable
+            $newData = Get-Content $newObjectives -Raw | ConvertFrom-Json -AsHashtable
+            foreach ($key in $oldData.Keys) {
+                if (-not $newData.ContainsKey($key)) {
+                    $newData[$key] = $oldData[$key]
+                }
+            }
+            $newData | ConvertTo-Json -Depth 10 | Set-Content -Path $newObjectives -Encoding UTF8
+        } else {
+            Write-Host "Migrating objective history from old installation..." -ForegroundColor Gray
+            Copy-Item $oldObjectives $newObjectives
+        }
+        Write-Host "Objective history preserved." -ForegroundColor Green
+    }
+    Write-Host ""
+}
+
+# Check for existing installation at target path (upgrade)
+if (Test-Path (Join-Path $installDir "statusline.py")) {
+    Write-Host "Upgrading existing Barkeep installation..." -ForegroundColor Yellow
+    Write-Host "(objective history and session data will be preserved)" -ForegroundColor Gray
+    Write-Host ""
+}
+
 # Check for Python
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) {
